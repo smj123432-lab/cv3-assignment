@@ -55,23 +55,43 @@
 - 라방 응답 필드: `visit_cnt`(조회수), `sales_cnt`(판매량), `sales_amt`(매출액), `product_cnt`(상품수), `title`, `cid`(분류), `datetime_start`
 - 홈쇼핑 응답 필드: `hsshow_title`, `hsshow_datetime_start`, `item_cnt`(상품수), `sales_cnt`, `sales_amt`, `cat.cat_name`(분류) — 시청률에 대응하는 필드는 응답에 없음(프론트에서 잠금 처리만 됨)
 - 실시간 랭킹이라 조회 시점마다 값이 달라짐.
-- data.ts/lockedSnapshot.ts에 있던 하드코딩 스냅샷 값은 이제 사용하지 않음 — 실시간 로그인 연동으로 대체됨 (관련 파일 정리 필요)
+- 라방(lb) API의 카테고리 이름 미제공 문제는 다각도로 조사 완료(API 응답 필드, 별도 카테고리 엔드포인트, 사이트 JS 번들, Next.js __NEXT_DATA__, 개별 방송 상세 API 전부 확인). 결론: 카테고리명 변환은 사이트의 Next.js 서버 내부에서만 처리되고 클라이언트로는 cid 숫자만 전달됨 - 브라우저 네트워크 레벨에서는 원리적으로 접근 불가능한 정보. CID_NAMES 매핑 + "기타(cid:...)" fallback이 이 제약 하의 최종 구현이며 더 이상 개선 여지 없음(새 cid 발견 시 수동 추가는 계속 가능).
 
 ## 파일 구조 (임의로 재구성하지 말 것)
 
 ```
-src/
-  App.jsx              # 토글 상태 관리, 최상위 컴포넌트
-  BroadcastTable.jsx   # 테이블 렌더링
-  data.js              # 방송 데이터 (라방/홈쇼핑)
-  formatDateTime.js    # 날짜 포맷 변환 함수
-  index.css
+cv3-assignment/
+├── client/                      # React + TypeScript (Vite)
+│   ├── src/
+│   │   ├── App.tsx              # 탭·로그인 상태, fetch, 로그인 폼
+│   │   ├── BroadcastTable.tsx   # 테이블 렌더링 (null이면 🔒 표시)
+│   │   ├── formatDateTime.ts    # ISO → "26.07.17 (금) 14:00" 변환
+│   │   ├── formatRevenue.ts     # 원단위 숫자 → 조/억/만 단위 표기 변환
+│   │   ├── types.ts             # Broadcast 타입 정의
+│   │   ├── main.tsx             # React 진입점
+│   │   └── index.css
+│   ├── index.html
+│   ├── tsconfig.json
+│   └── package.json
+│
+└── server/                      # Node + Express + TypeScript
+    ├── src/
+    │   ├── index.ts             # Express 서버, 라우트 정의
+    │   │                        # POST /api/login · /api/logout · GET /api/me · /api/broadcasts
+    │   ├── authService.ts       # 라방바 로그인 API 중계, 세션 쿠키 파싱
+    │   ├── session.ts           # 인메모리 세션 스토어 (Map<sessionId, cookie>)
+    │   ├── broadcastService.ts  # 외부 API 호출, 필드 변환, TOP10 추출
+    │   └── types.ts             # 서버 내부 타입 정의
+    ├── tsconfig.json
+    └── package.json
 ```
 
 ## 커밋 규칙
 
 - 커밋을 하나로 뭉치지 말고 작업 단위로 나눠서 커밋한다 (안내문 요구사항).
+  - 작업 단위 예시: 프로젝트 셋업 / 데이터 정의(data.js) / 토글 UI / 테이블 컴포넌트 / 날짜 포맷 유틸 / 스타일링 / API 연동(스크래핑) / README 작성 — 이런 식으로 커밋을 쪼갠다. 여러 관심사를 한 커밋에 섞지 않는다.
 - 커밋 메시지는 무엇을/왜 했는지 명확히 남긴다. 면접에서 이 로그를 보고 설명하게 됨.
+- 기능 브랜치를 새로 만들 때는 그 브랜치가 담당하는 작업 범위를 벗어나는 변경을 같이 커밋하지 않는다.
 
 ## 브랜치 전략
 
@@ -92,16 +112,12 @@ git checkout dev
 git merge --no-ff feature/data-setup
 ```
 
-## 커밋 규칙
-
-- 커밋을 하나로 뭉치지 말고 작업 단위로 나눠서 커밋한다 (안내문 요구사항).
-  - 작업 단위 예시: 프로젝트 셋업 / 데이터 정의(data.js) / 토글 UI / 테이블 컴포넌트 / 날짜 포맷 유틸 / 스타일링 / API 연동(스크래핑) / README 작성 — 이런 식으로 커밋을 쪼갠다. 여러 관심사를 한 커밋에 섞지 않는다.
-- 커밋 메시지는 무엇을/왜 했는지 명확히 남긴다. 면접에서 이 로그를 보고 설명하게 됨.
-- 기능 브랜치를 새로 만들 때는 그 브랜치가 담당하는 작업 범위를 벗어나는 변경을 같이 커밋하지 않는다.
-
 ## 실행 방법 (README와 동일하게 유지)
 
 ```bash
-npm install
-npm run dev
+# 터미널 1 - 서버
+cd server && npm install && npm run dev
+
+# 터미널 2 - 클라이언트
+cd client && npm install && npm run dev
 ```

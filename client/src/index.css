@@ -27,17 +27,52 @@ h1 {
   margin: 0;
 }
 
+.login-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.login-input {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  width: 140px;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: #aaa;
+}
+
+.login-status {
+  font-size: 13px;
+  color: #555;
+}
+
+.login-error {
+  font-size: 12px;
+  color: #e00;
+}
+
 .login-btn {
-  padding: 6px 16px;
+  padding: 6px 14px;
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
   cursor: pointer;
   font-size: 13px;
+  white-space: nowrap;
 }
 
-.login-btn:hover {
+.login-btn:hover:not(:disabled) {
   background: #f5f5f5;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .login-btn.active {

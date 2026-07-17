@@ -1,0 +1,92 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  background: #fff;
+  color: #222;
+  margin: 0;
+  padding: 24px;
+}
+
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.toggle button {
+  padding: 8px 20px;
+  border: 1px solid #ddd;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.toggle button.active {
+  background: #ffd400;
+  border-color: #ffd400;
+  font-weight: 600;
+}
+
+.broadcast-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.broadcast-table th,
+.broadcast-table td {
+  padding: 12px 8px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.broadcast-table th {
+  color: #888;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.title-cell {
+  text-align: left;
+  max-width: 320px;
+  white-space: normal;
+}
+
+.title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.channel {
+  color: #999;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.rank {
+  color: #ffb800;
+  font-weight: 700;
+}
+
+.locked {
+  color: #bbb;
+  font-size: 12px;
+}

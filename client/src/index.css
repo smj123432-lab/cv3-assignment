@@ -130,16 +130,17 @@ h1 {
 .broadcast-table th:nth-child(7) { width: 106px; }  /* 매출액 */
 .broadcast-table th:nth-child(8) { width: 68px; }   /* 상품수 */
 
-.broadcast-table tbody tr {
-  height: 62px;
-}
-
 .broadcast-table th,
 .broadcast-table td {
   padding: 12px 8px;
   text-align: center;
   border-bottom: 1px solid #eee;
   white-space: nowrap;
+}
+
+.broadcast-table tbody td {
+  height: 62px;
+  overflow: hidden;
 }
 
 .broadcast-table th {

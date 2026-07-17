@@ -127,7 +127,7 @@ export default function App() {
       </div>
 
       <div className="table-area">
-        {loading ? (
+        {broadcasts.length === 0 && loading ? (
           <p className="loading">불러오는 중...</p>
         ) : (
           <BroadcastTable items={broadcasts} />

@@ -1,11 +1,14 @@
 import { formatDateTime } from './formatDateTime'
 
-// 잠긴 값(null)은 자물쇠 표시로 통일
+// 잠긴 값(null)은 자물쇠 표시, 숫자는 콤마 포맷, 문자열은 그대로 출력
 function LockedOrValue({ value }) {
   if (value === null || value === undefined) {
     return <span className="locked">🔒 로그인</span>
   }
-  return <span>{value.toLocaleString()}</span>
+  if (typeof value === 'number') {
+    return <span>{value.toLocaleString()}</span>
+  }
+  return <span>{value}</span>
 }
 
 export default function BroadcastTable({ items }) {

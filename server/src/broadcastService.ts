@@ -85,9 +85,13 @@ export async function fetchBroadcasts(
   type: 'lb' | 'hs',
   labangbaCookie?: string,
 ): Promise<Broadcast[]> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'domain': 'ecomm-data.com',
+  }
   if (labangbaCookie) {
-    headers['Cookie'] = `sales2.sig=${labangbaCookie}`
+    // labangbaCookie는 "sales2=...; sales2.sig=..." 형태로 저장됨
+    headers['Cookie'] = labangbaCookie
   }
 
   const res = await fetch(API_URL, {

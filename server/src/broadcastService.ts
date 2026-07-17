@@ -1,4 +1,4 @@
-import type { UnlockedBroadcast } from './types'
+import type { Broadcast } from './types'
 
 const API_URL = 'https://live.ecomm-data.com/api/assignment/list'
 
@@ -71,6 +71,7 @@ interface HsItem {
   hsshow_title: string
   hsshow_datetime_start: string
   item_cnt: number
+  visit_cnt: number | null
   sales_cnt: number | null
   sales_amt: number | null
   cat: { cid: number; cat_name: string }
@@ -80,10 +81,18 @@ interface ApiResponse {
   list: LbItem[] | HsItem[]
 }
 
-export async function fetchBroadcasts(type: 'lb' | 'hs'): Promise<UnlockedBroadcast[]> {
+export async function fetchBroadcasts(
+  type: 'lb' | 'hs',
+  labangbaCookie?: string,
+): Promise<Broadcast[]> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (labangbaCookie) {
+    headers['Cookie'] = `sales2.sig=${labangbaCookie}`
+  }
+
   const res = await fetch(API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: JSON.stringify({ type }),
   })
 
@@ -102,6 +111,10 @@ export async function fetchBroadcasts(type: 'lb' | 'hs'): Promise<UnlockedBroadc
       category: CID_NAMES[item.cid] ?? '기타',
       broadcastTime: parseLbDatetime(item.datetime_start),
       productCount: item.product_cnt,
+      metricLabel: '조회수',
+      metricValue: item.visit_cnt,
+      sales: item.sales_cnt,
+      revenue: item.sales_amt,
     }))
   } else {
     return (list as HsItem[]).slice(0, 10).map((item, i) => ({
@@ -111,6 +124,10 @@ export async function fetchBroadcasts(type: 'lb' | 'hs'): Promise<UnlockedBroadc
       category: item.cat?.cat_name ?? '',
       broadcastTime: parseHsDatetime(item.hsshow_datetime_start),
       productCount: item.item_cnt,
+      metricLabel: '시청률',
+      metricValue: item.visit_cnt,
+      sales: item.sales_cnt,
+      revenue: item.sales_amt,
     }))
   }
 }

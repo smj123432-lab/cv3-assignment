@@ -1,4 +1,5 @@
 import { formatDateTime } from './formatDateTime'
+import { formatRevenue } from './formatRevenue'
 import type { Broadcast } from './types'
 
 // 잠긴 값(null)은 자물쇠 표시, 숫자는 콤마 포맷, 문자열은 그대로 출력
@@ -49,7 +50,7 @@ export default function BroadcastTable({ items }: Props) {
               <LockedOrValue value={item.sales} />
             </td>
             <td>
-              <LockedOrValue value={item.revenue} />
+              <LockedOrValue value={item.revenue === null ? null : formatRevenue(item.revenue)} />
             </td>
             <td>{item.productCount}</td>
           </tr>

@@ -1,49 +1,104 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import BroadcastTable from './BroadcastTable'
-import { lbSnapshot, hsSnapshot } from './lockedSnapshot'
-import type { UnlockedFields, Broadcast } from './types'
+import type { Broadcast } from './types'
 
 type TabType = 'live' | 'homeshopping'
 
+const API = 'http://localhost:4000'
+
 export default function App() {
   const [tab, setTab] = useState<TabType>('live')
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [unlockedItems, setUnlockedItems] = useState<UnlockedFields[]>([])
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([])
   const [loading, setLoading] = useState<boolean>(false)
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
+  const [loginError, setLoginError] = useState<string>('')
+  const [loginLoading, setLoginLoading] = useState<boolean>(false)
+  const emailRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
+  const fetchBroadcasts = () => {
     const apiType = tab === 'live' ? 'lb' : 'hs'
     setLoading(true)
-    fetch(`http://localhost:4000/api/broadcasts?type=${apiType}`)
+    fetch(`${API}/api/broadcasts?type=${apiType}`, { credentials: 'include' })
       .then((res) => res.json())
-      .then((data: UnlockedFields[]) => setUnlockedItems(data))
+      .then((data: Broadcast[]) => setBroadcasts(data))
       .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchBroadcasts()
   }, [tab])
 
-  // API 결과(UnlockedFields)와 스냅샷(LockedSnapshot)을 rank 기준으로 합침
-  const snapshot = tab === 'live' ? lbSnapshot : hsSnapshot
-  const broadcasts: Broadcast[] = unlockedItems.map((item) => {
-    const locked = snapshot[item.rank]
-    return {
-      ...item,
-      metricLabel: locked?.metricLabel ?? '',
-      // 로그아웃 상태면 잠긴 값을 null로 덮어써서 테이블에 🔒 표시
-      metricValue: isLoggedIn ? (locked?.metricValue ?? null) : null,
-      sales: isLoggedIn ? (locked?.sales ?? null) : null,
-      revenue: isLoggedIn ? (locked?.revenue ?? null) : null,
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const email = emailRef.current?.value ?? ''
+    const password = passwordRef.current?.value ?? ''
+    if (!email || !password) return
+
+    setLoginError('')
+    setLoginLoading(true)
+    try {
+      const res = await fetch(`${API}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      })
+      if (res.ok) {
+        // password 값은 절대 로그로 남기지 않음
+        if (passwordRef.current) passwordRef.current.value = ''
+        setIsLoggedIn(true)
+        fetchBroadcasts()
+      } else {
+        setLoginError('로그인에 실패했습니다')
+      }
+    } catch {
+      setLoginError('로그인에 실패했습니다')
+    } finally {
+      setLoginLoading(false)
     }
-  })
+  }
+
+  const handleLogout = async () => {
+    await fetch(`${API}/api/logout`, { method: 'POST', credentials: 'include' })
+    setIsLoggedIn(false)
+    fetchBroadcasts()
+  }
 
   return (
     <div className="page">
       <div className="page-header">
         <h1>라방 · 홈쇼핑 랭킹 (채용 과제)</h1>
-        <button
-          className={`login-btn${isLoggedIn ? ' active' : ''}`}
-          onClick={() => setIsLoggedIn((prev) => !prev)}
-        >
-          {isLoggedIn ? '로그아웃' : '로그인'}
-        </button>
+
+        {isLoggedIn ? (
+          <div className="login-area">
+            <span className="login-status">로그인됨</span>
+            <button className="login-btn active" onClick={handleLogout}>
+              로그아웃
+            </button>
+          </div>
+        ) : (
+          <form className="login-area" onSubmit={handleLogin}>
+            <input
+              ref={emailRef}
+              type="email"
+              placeholder="이메일"
+              className="login-input"
+              autoComplete="email"
+            />
+            <input
+              ref={passwordRef}
+              type="password"
+              placeholder="비밀번호"
+              className="login-input"
+              autoComplete="current-password"
+            />
+            <button type="submit" className="login-btn" disabled={loginLoading}>
+              {loginLoading ? '로그인 중…' : '로그인'}
+            </button>
+            {loginError && <span className="login-error">{loginError}</span>}
+          </form>
+        )}
       </div>
 
       <div className="toggle">

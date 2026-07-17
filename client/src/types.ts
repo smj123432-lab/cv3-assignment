@@ -1,20 +1,13 @@
-// 백엔드 API에서 비로그인으로 가져오는 필드
-export interface UnlockedFields {
+// 서버 /api/broadcasts 응답 타입 (로그인 여부에 따라 잠긴 필드는 서버가 null 반환)
+export interface Broadcast {
   rank: number
   title: string
   channel: string
   category: string
   broadcastTime: string
   productCount: number
-}
-
-// 로그인 후에만 보이는 값의 스냅샷 (2026-07-17 기준)
-export interface LockedSnapshot {
-  metricLabel: string // '조회수' | '시청률'
+  metricLabel: string        // '조회수' (lb) | '시청률' (hs)
   metricValue: number | null
   sales: number | null
-  revenue: string | null
+  revenue: number | null
 }
-
-// 화면에 렌더링하는 최종 타입
-export type Broadcast = UnlockedFields & LockedSnapshot

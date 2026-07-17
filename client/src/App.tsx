@@ -16,6 +16,16 @@ export default function App() {
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
+  // 페이지 로드 시 최초 1회 실행: 서버 세션이 살아있으면 로그인 상태 복원
+  useEffect(() => {
+    fetch(`${API}/api/me`, { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data: { loggedIn: boolean }) => {
+        if (data.loggedIn) setIsLoggedIn(true)
+      })
+      .catch(() => {/* 서버 연결 실패 시 로그아웃 상태 유지 */})
+  }, [])
+
   const fetchBroadcasts = () => {
     const apiType = tab === 'live' ? 'lb' : 'hs'
     setLoading(true)

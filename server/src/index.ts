@@ -57,6 +57,13 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true })
 })
 
+// GET /api/me — 현재 세션이 유효한지 확인 (새로고침 시 로그인 상태 복원용)
+app.get('/api/me', (req, res) => {
+  const sessionId = parseCookie(req.headers.cookie, 'our_session')
+  const loggedIn = sessionId ? getSession(sessionId) !== undefined : false
+  res.json({ loggedIn })
+})
+
 // GET /api/broadcasts?type=lb|hs
 app.get('/api/broadcasts', async (req, res) => {
   const type = req.query.type as string

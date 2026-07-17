@@ -50,11 +50,7 @@ export default function BroadcastTable({ items }: Props) {
               <LockedOrValue value={item.sales} />
             </td>
             <td>
-              <LockedOrValue value={
-                item.revenue === null ? null
-                : typeof item.revenue === 'number' ? formatRevenue(item.revenue)
-                : item.revenue
-              } />
+              <LockedOrValue value={item.revenue === null ? null : formatRevenue(item.revenue)} />
             </td>
             <td>{item.productCount}</td>
           </tr>

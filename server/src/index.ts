@@ -21,7 +21,7 @@ function parseCookie(cookieHeader: string | undefined, name: string): string | u
 }
 
 // POST /api/login
-// req.body の email/password はいかなる理由でも console.log しない
+// req.body의 email/password는 어떤 이유로도 console.log하지 않는다
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body as { email?: string; password?: string }
 

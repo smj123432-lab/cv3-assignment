@@ -126,11 +126,13 @@ export default function App() {
         </button>
       </div>
 
-      {loading ? (
-        <p className="loading">불러오는 중...</p>
-      ) : (
-        <BroadcastTable items={broadcasts} />
-      )}
+      <div className="table-area">
+        {loading ? (
+          <p className="loading">불러오는 중...</p>
+        ) : (
+          <BroadcastTable items={broadcasts} />
+        )}
+      </div>
     </div>
   )
 }

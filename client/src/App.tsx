@@ -14,7 +14,7 @@ export default function App() {
   useEffect(() => {
     const apiType = tab === 'live' ? 'lb' : 'hs'
     setLoading(true)
-    fetch(`http://localhost:4000/api/broadcasts?type=${apiType}`)
+    fetch(`http://localhost:4000/api/broadcasts?type=${apiType}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data: UnlockedFields[]) => setUnlockedItems(data))
       .finally(() => setLoading(false))

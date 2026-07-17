@@ -39,7 +39,7 @@ export default function App() {
       <div className="page-header">
         <h1>라방 · 홈쇼핑 랭킹 (채용 과제)</h1>
         <button
-          className="login-btn"
+          className={`login-btn${isLoggedIn ? ' active' : ''}`}
           onClick={() => setIsLoggedIn((prev) => !prev)}
         >
           {isLoggedIn ? '로그아웃' : '로그인'}

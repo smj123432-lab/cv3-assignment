@@ -71,26 +71,28 @@ npm run dev   # http://localhost:5173
 
 ```
 cv3-assignment/
-├── client/                      # React + TypeScript (Vite)
-│   ├── src/
-│   │   ├── App.tsx              # 탭·로그인 상태 관리, 로그인 폼, fetch
-│   │   ├── BroadcastTable.tsx   # 테이블 렌더링 (null이면 🔒 표시)
-│   │   ├── formatDateTime.ts    # ISO → "26.07.17 (금) 14:00" 변환
-│   │   ├── formatRevenue.ts     # 원단위 숫자 → 조/억/만 단위 표기 변환
-│   │   ├── types.ts             # Broadcast 타입 정의
-│   │   └── index.css
-│   ├── index.html
+├── client/                        # React + TypeScript (Vite)
+│   ├── index.html                 # Vite HTML 진입점, main.tsx를 스크립트로 로드
 │   ├── tsconfig.json
-│   └── package.json
+│   ├── package.json
+│   └── src/
+│       ├── main.tsx               # React 앱 진입점, <App />을 DOM에 마운트
+│       ├── App.tsx                # 탭·로그인 상태 관리, 데이터 fetch, 로그인 폼 UI
+│       ├── BroadcastTable.tsx     # TOP10 테이블 렌더링 (비로그인 잠긴 값은 🔒 표시)
+│       ├── types.ts               # Broadcast 공통 타입 정의 (client 전역)
+│       ├── formatDateTime.ts      # "2607171400" → "26.07.17 (금) 14:00" 변환 유틸
+│       ├── formatRevenue.ts       # 원단위 숫자 → 조/억/만 단위 한국어 표기 변환 유틸
+│       └── index.css              # 전역 스타일 (테이블·폼·레이아웃)
 │
-└── server/                      # Node + Express + TypeScript
-    ├── src/
-    │   ├── index.ts             # Express 서버, 라우트 정의
-    │   │                        # POST /api/login, /api/logout, GET /api/me, /api/broadcasts
-    │   ├── authService.ts       # 라방바 로그인 API 중계, 세션 쿠키 파싱
-    │   ├── session.ts           # 인메모리 세션 스토어 (Map<sessionId, cookie>)
-    │   ├── broadcastService.ts  # 외부 API 호출, 필드 변환, TOP10 추출
-    │   └── types.ts             # 서버 내부 타입 정의
+└── server/                        # Node + Express + TypeScript
     ├── tsconfig.json
-    └── package.json
+    ├── package.json
+    └── src/
+        ├── index.ts               # Express 앱 설정, 라우트 정의
+        │                          #   POST /api/login · POST /api/logout
+        │                          #   GET  /api/me   · GET  /api/broadcasts
+        ├── authService.ts         # 라방바 로그인 API 중계, Set-Cookie 파싱
+        ├── session.ts             # 인메모리 세션 스토어 (Map<sessionId, labangbaCookie>)
+        ├── broadcastService.ts    # 외부 API 호출, CID 매핑, 필드 변환, TOP10 추출
+        └── types.ts               # 서버 내부 타입 정의 (LbItem, HsItem 등)
 ```

@@ -15,9 +15,34 @@ body {
   margin: 0 auto;
 }
 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 h1 {
   font-size: 20px;
-  margin-bottom: 20px;
+  margin: 0;
+}
+
+.login-btn {
+  padding: 6px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.login-btn:hover {
+  background: #f5f5f5;
+}
+
+.loading {
+  color: #999;
+  font-size: 13px;
 }
 
 .toggle {

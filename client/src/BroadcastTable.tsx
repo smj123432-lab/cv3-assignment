@@ -1,7 +1,8 @@
 import { formatDateTime } from './formatDateTime'
+import type { Broadcast } from './types'
 
 // 잠긴 값(null)은 자물쇠 표시, 숫자는 콤마 포맷, 문자열은 그대로 출력
-function LockedOrValue({ value }) {
+function LockedOrValue({ value }: { value: number | string | null }) {
   if (value === null || value === undefined) {
     return <span className="locked">🔒 로그인</span>
   }
@@ -11,7 +12,11 @@ function LockedOrValue({ value }) {
   return <span>{value}</span>
 }
 
-export default function BroadcastTable({ items }) {
+interface Props {
+  items: Broadcast[]
+}
+
+export default function BroadcastTable({ items }: Props) {
   return (
     <table className="broadcast-table">
       <thead>

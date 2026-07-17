@@ -1,7 +1,7 @@
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토']
 
 // "2026-07-17T14:00:00" -> "26.07.17 (금) 14:00"
-export function formatDateTime(isoString) {
+export function formatDateTime(isoString: string): string {
   const d = new Date(isoString)
 
   const yy = String(d.getFullYear()).slice(2)

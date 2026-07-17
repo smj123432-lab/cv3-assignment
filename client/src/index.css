@@ -83,6 +83,10 @@ h1 {
   font-weight: 600;
 }
 
+.table-area {
+  min-height: 660px;
+}
+
 .loading {
   color: #999;
   font-size: 13px;
@@ -125,6 +129,10 @@ h1 {
 .broadcast-table th:nth-child(6) { width: 88px; }   /* 판매량 */
 .broadcast-table th:nth-child(7) { width: 106px; }  /* 매출액 */
 .broadcast-table th:nth-child(8) { width: 68px; }   /* 상품수 */
+
+.broadcast-table tbody tr {
+  height: 62px;
+}
 
 .broadcast-table th,
 .broadcast-table td {

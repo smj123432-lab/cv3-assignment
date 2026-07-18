@@ -13,6 +13,7 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
   const [loginError, setLoginError] = useState<string>('')
   const [loginLoading, setLoginLoading] = useState<boolean>(false)
+  const [fetchError, setFetchError] = useState<string>('')
   const emailRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
 
@@ -29,9 +30,11 @@ export default function App() {
   const fetchBroadcasts = () => {
     const apiType = tab === 'live' ? 'lb' : 'hs'
     setLoading(true)
+    setFetchError('')
     fetch(`${API}/api/broadcasts?type=${apiType}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data: Broadcast[]) => setBroadcasts(data))
+      .catch(() => setFetchError('데이터를 불러오지 못했습니다'))
       .finally(() => setLoading(false))
   }
 
@@ -55,7 +58,8 @@ export default function App() {
         body: JSON.stringify({ email, password }),
       })
       if (res.ok) {
-        // password 값은 절대 로그로 남기지 않음
+        // email/password 값은 절대 로그로 남기지 않음
+        if (emailRef.current) emailRef.current.value = ''
         if (passwordRef.current) passwordRef.current.value = ''
         setIsLoggedIn(true)
         fetchBroadcasts()
@@ -129,6 +133,8 @@ export default function App() {
       <div className="table-area">
         {broadcasts.length === 0 && loading ? (
           <p className="loading">불러오는 중...</p>
+        ) : fetchError ? (
+          <p className="fetch-error">{fetchError}</p>
         ) : (
           <BroadcastTable items={broadcasts} />
         )}

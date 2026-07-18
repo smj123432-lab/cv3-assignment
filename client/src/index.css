@@ -92,6 +92,11 @@ h1 {
   font-size: 13px;
 }
 
+.fetch-error {
+  color: #e00;
+  font-size: 13px;
+}
+
 .toggle {
   display: flex;
   gap: 8px;

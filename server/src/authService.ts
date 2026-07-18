@@ -1,5 +1,4 @@
-// 라방바 로그인 API 프록시
-// 주의: email/password는 어떤 이유로도 로그에 남기지 않는다
+// email/password는 어떤 이유로도 로그에 남기지 않습니다
 
 interface SignInResponse {
   result: number
@@ -8,7 +7,6 @@ interface SignInResponse {
 
 const SIGN_IN_URL = 'https://live.ecomm-data.com/api/user/sign_in'
 
-// 브라우저 fetch wrapper가 항상 포함하는 헤더
 const BASE_HEADERS = {
   'Content-Type': 'application/json',
   'domain': 'ecomm-data.com',
@@ -32,8 +30,8 @@ function extractCookie(res: Response): string {
     throw new Error('서버에서 세션 쿠키를 받지 못했습니다')
   }
 
-  // Koa 세션은 sales2(데이터)와 sales2.sig(서명) 두 쿠키를 함께 사용
-  // 업스트림 API 호출 시 둘 다 전달해야 인증됨
+  // 라방바는 Koa 세션 방식이라 sales2(데이터)와 sales2.sig(서명) 두 쿠키를
+  // 함께 전달해야 인증이 됩니다
   const sales2Match = setCookieHeader.match(/sales2(?!\.sig)=([^;]+)/)
   const sales2SigMatch = setCookieHeader.match(/sales2\.sig=([^;]+)/)
   if (!sales2Match || !sales2SigMatch) {
@@ -44,7 +42,6 @@ function extractCookie(res: Response): string {
 }
 
 export async function loginToLabangba(email: string, password: string): Promise<string> {
-  // 1차 시도
   const { res: res1, data: data1 } = await callSignIn({ email, password })
 
   if (!res1.ok) {
@@ -55,9 +52,9 @@ export async function loginToLabangba(email: string, password: string): Promise<
     return extractCookie(res1)
   }
 
-  // result: 5 = 동시 접속 세션 초과
-  // 브라우저는 old_sess 목록을 보여주고 사용자가 하나를 선택해 종료 후 재접속
-  // 프록시에서는 자동으로 첫 번째 세션을 선택해 종료 후 재로그인
+  // result=5는 동시 접속 세션 초과입니다.
+  // 브라우저에서는 사용자가 직접 종료할 세션을 고르지만,
+  // 여기서는 자동으로 첫 번째 세션을 종료하고 재로그인합니다.
   if (data1.result === 5) {
     const oldSess = data1.old_sess
     if (!oldSess?.length) {

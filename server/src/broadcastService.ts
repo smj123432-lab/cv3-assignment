@@ -2,7 +2,7 @@ import type { Broadcast } from './types'
 
 const API_URL = 'https://live.ecomm-data.com/api/assignment/list'
 
-// lb의 platform_id는 코드값("naver", "cjonstyle" 등)이라 표시명으로 변환
+// platform_id가 "naver", "cjonstyle" 같은 코드값으로 오기 때문에 표시용 이름으로 변환합니다
 const PLATFORM_NAMES: Record<string, string> = {
   naver: '네이버쇼핑LIVE',
   cjonstyle: 'CJ온스타일',
@@ -14,8 +14,9 @@ const PLATFORM_NAMES: Record<string, string> = {
   lotte: '롯데ON',
 }
 
-// lb의 cid는 숫자 서브카테고리 코드. hs API의 cat.cat_name에서 확인한 값 + 추가 매핑
-// 매핑에 없는 cid는 "기타(cid:XXXXX)"로 표시 (정보 보존)
+// cid는 숫자 코드로만 오고 카테고리 이름은 API에서 제공하지 않습니다.
+// 라방바 서버 내부에서만 이름으로 변환되어 클라이언트까지 전달되지 않기 때문입니다.
+// 확인된 cid는 직접 매핑했고, 없는 것은 "기타(cid:숫자)"로 표시합니다.
 const CID_NAMES: Record<number, string> = {
   50000026: '식품',
   50000066: '생활/건강',
@@ -62,7 +63,6 @@ export function parseHsDatetime(s: string): string {
   return `${yyyy}-${mm}-${dd}T${hh}:${min}:00`
 }
 
-// API 응답 원본 타입
 interface LbItem {
   objectID: string
   platform_id: string
@@ -100,7 +100,7 @@ export async function fetchBroadcasts(
     'domain': 'ecomm-data.com',
   }
   if (labangbaCookie) {
-    // labangbaCookie는 "sales2=...; sales2.sig=..." 형태로 저장됨
+    // "sales2=...; sales2.sig=..." 형태로 저장된 쿠키를 그대로 전달합니다
     headers['Cookie'] = labangbaCookie
   }
 

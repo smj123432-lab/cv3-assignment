@@ -13,15 +13,14 @@ app.use(cors({
 }))
 app.use(express.json())
 
-// Cookie 헤더에서 특정 쿠키 값을 추출하는 헬퍼 (cookie-parser 의존성 없이)
+// cookie-parser 없이 쿠키 헤더에서 특정 값만 꺼냅니다
 function parseCookie(cookieHeader: string | undefined, name: string): string | undefined {
   if (!cookieHeader) return undefined
   const entry = cookieHeader.split(';').map((c) => c.trim()).find((c) => c.startsWith(`${name}=`))
   return entry ? entry.slice(name.length + 1) : undefined
 }
 
-// POST /api/login
-// req.body의 email/password는 어떤 이유로도 console.log하지 않는다
+// email/password는 로그에 절대 남기지 않습니다
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body as { email?: string; password?: string }
 
@@ -47,7 +46,6 @@ app.post('/api/login', async (req, res) => {
   }
 })
 
-// POST /api/logout
 app.post('/api/logout', (req, res) => {
   const sessionId = parseCookie(req.headers.cookie, 'our_session')
   if (sessionId) {
@@ -57,14 +55,13 @@ app.post('/api/logout', (req, res) => {
   res.json({ ok: true })
 })
 
-// GET /api/me — 현재 세션이 유효한지 확인 (새로고침 시 로그인 상태 복원용)
+// 새로고침 시 프론트가 여기를 호출해서 로그인 상태를 복원합니다
 app.get('/api/me', (req, res) => {
   const sessionId = parseCookie(req.headers.cookie, 'our_session')
   const loggedIn = sessionId ? getSession(sessionId) !== undefined : false
   res.json({ loggedIn })
 })
 
-// GET /api/broadcasts?type=lb|hs
 app.get('/api/broadcasts', async (req, res) => {
   const type = req.query.type as string
   if (type !== 'lb' && type !== 'hs') {

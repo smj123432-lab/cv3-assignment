@@ -20,7 +20,7 @@ export default function App() {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
-  // 페이지 로드 시 최초 1회 실행: 서버 세션이 살아있으면 로그인 상태 복원
+  // 처음 접속할 때 서버 세션이 살아있으면 로그인 상태를 복원합니다
   useEffect(() => {
     fetch(`${API}/api/me`, { credentials: "include" })
       .then((res) => res.json())
@@ -28,10 +28,14 @@ export default function App() {
         if (data.loggedIn) setIsLoggedIn(true);
       })
       .catch(() => {
-        /* 서버 연결 실패 시 로그아웃 상태 유지 */
+        // 서버가 꺼져있거나 네트워크 오류면 그냥 비로그인 상태로 둡니다
       });
   }, []);
 
+  // 탭을 전환할 때마다 캐싱 없이 매번 새로 API를 호출합니다.
+  // 의도된 설계입니다 — 실시간으로 계속 변동되는 랭킹 데이터라
+  // (CV3 요구사항: 특정 시점 고정값이 아닌 실시간 값), 캐싱하면
+  // 오래된 값을 보여주는 문제가 생길 수 있어 매번 최신 데이터를 가져옵니다.
   const fetchBroadcasts = () => {
     const apiType = tab === "live" ? "lb" : "hs";
     setLoading(true);
@@ -63,7 +67,7 @@ export default function App() {
         body: JSON.stringify({ email, password }),
       });
       if (res.ok) {
-        // email/password 값은 절대 로그로 남기지 않음
+        // 로그인 성공 후 입력 필드를 비웁니다. email/password는 로그에 남기지 않습니다
         if (emailRef.current) emailRef.current.value = "";
         if (passwordRef.current) passwordRef.current.value = "";
         setIsLoggedIn(true);

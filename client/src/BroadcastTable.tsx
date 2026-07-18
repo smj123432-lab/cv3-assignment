@@ -18,7 +18,6 @@ interface Column {
   label: string | ((items: Broadcast[]) => string)
   width: number
   tdClassName?: string
-  sortable?: boolean
   render: (item: Broadcast) => React.ReactNode
 }
 
@@ -52,7 +51,6 @@ const COLUMNS: Column[] = [
     key: "broadcastTime",
     label: "방송시간",
     width: 140,
-    sortable: true,
     render: (item) => formatDateTime(item.broadcastTime),
   },
   {
@@ -87,31 +85,16 @@ const COLUMNS: Column[] = [
 
 interface Props {
   items: Broadcast[];
-  sortOrder: "asc" | "desc";
-  setSortOrder: (order: "asc" | "desc") => void;
 }
 
-export default function BroadcastTable({
-  items,
-  sortOrder,
-  setSortOrder,
-}: Props) {
+export default function BroadcastTable({ items }: Props) {
   return (
     <table className="broadcast-table">
       <thead>
         <tr>
           {COLUMNS.map((col) => (
-            <th
-              key={col.key}
-              style={{ width: col.width }}
-              onClick={
-                col.sortable
-                  ? () => setSortOrder(sortOrder === "asc" ? "desc" : "asc")
-                  : undefined
-              }
-            >
+            <th key={col.key} style={{ width: col.width }}>
               {typeof col.label === "function" ? col.label(items) : col.label}
-              {col.sortable && (sortOrder === "asc" ? "1" : "2")}
             </th>
           ))}
         </tr>

@@ -2,6 +2,20 @@
 
 라방바 데이터랩(live.ecomm-data.com)의 라방·홈쇼핑 실시간 랭킹 TOP10을 보여주는 웹 페이지입니다.
 
+## 화면
+
+**라방 탭**
+
+| 비로그인 | 로그인 |
+|---|---|
+| ![라방 비로그인](docs/라방-비로그인.png) | ![라방 로그인](docs/라방-로그인.png) |
+
+**홈쇼핑 탭**
+
+| 비로그인 | 로그인 |
+|---|---|
+| ![홈쇼핑 비로그인](docs/홈쇼핑-비로그인.png) | ![홈쇼핑 로그인](docs/홈쇼핑-로그인.png) |
+
 ## 실행 방법
 
 터미널 두 개가 필요합니다.
@@ -22,9 +36,18 @@ npm install
 npm run dev   # http://localhost:5173
 ```
 
+## 테스트 실행
+
+`formatRevenue`, `formatDateTime`, `parseLbDatetime` 등 순수 함수에 대한 단위 테스트입니다.
+
+```bash
+cd client && npm run test   # 2개 파일, 11개 테스트
+cd server && npm run test   # 1개 파일, 6개 테스트
+```
+
 ## 구현 범위
 
-- 라방 / 홈쇼핑 탭 토글로 목록 전환
+- 라방 / 홈쇼핑 탭 토글로 목록 전환 (탭 상태는 URL 쿼리 파라미터로 유지, 새로고침 시에도 복원)
 - 탭별 실시간 TOP10을 테이블로 표시 (순위 · 방송정보 · 분류 · 방송시간 · 조회수/시청률 · 판매량 · 매출액 · 상품수)
 - 비로그인 상태: 제목·채널·분류·방송시간·상품수를 실시간으로 표시, 조회수·판매량·매출액은 🔒
 - 로그인 상태: 라방바 계정으로 직접 로그인하면 모든 필드가 실시간으로 표시
@@ -71,6 +94,7 @@ npm run dev   # http://localhost:5173
 
 ```
 cv3-assignment/
+├── docs/                          # README 이미지 리소스
 ├── client/                        # React + TypeScript (Vite)
 │   ├── index.html                 # Vite HTML 진입점, main.tsx를 스크립트로 로드
 │   ├── tsconfig.json
@@ -80,8 +104,10 @@ cv3-assignment/
 │       ├── App.tsx                # 탭·로그인 상태 관리, 데이터 fetch, 로그인 폼 UI
 │       ├── BroadcastTable.tsx     # TOP10 테이블 렌더링 (비로그인 잠긴 값은 🔒 표시)
 │       ├── types.ts               # Broadcast 공통 타입 정의 (client 전역)
-│       ├── formatDateTime.ts      # "2607171400" → "26.07.17 (금) 14:00" 변환 유틸
+│       ├── formatDateTime.ts      # ISO 문자열 → "26.07.17 (금) 14:00" 변환 유틸
 │       ├── formatRevenue.ts       # 원단위 숫자 → 조/억/만 단위 한국어 표기 변환 유틸
+│       ├── formatRevenue.test.ts  # formatRevenue 단위 테스트 (vitest)
+│       ├── formatDateTime.test.ts # formatDateTime 단위 테스트 (vitest)
 │       └── index.css              # 전역 스타일 (테이블·폼·레이아웃)
 │
 └── server/                        # Node + Express + TypeScript
@@ -94,5 +120,20 @@ cv3-assignment/
         ├── authService.ts         # 라방바 로그인 API 중계, Set-Cookie 파싱
         ├── session.ts             # 인메모리 세션 스토어 (Map<sessionId, labangbaCookie>)
         ├── broadcastService.ts    # 외부 API 호출, CID 매핑, 필드 변환, TOP10 추출
+        ├── broadcastService.test.ts # parseDatetime 단위 테스트 (vitest)
         └── types.ts               # 서버 내부 타입 정의 (LbItem, HsItem 등)
 ```
+
+## 트러블슈팅
+
+**CORS 문제**
+브라우저에서 `live.ecomm-data.com` API를 직접 호출하면 CORS 정책에 막힙니다.
+→ Express 백엔드를 프록시로 두어 서버에서 외부 API를 호출하고 결과만 클라이언트에 전달하는 방식으로 우회했습니다.
+
+**카테고리(cid) 일부가 "기타"로 표시되는 문제**
+API 응답 필드, 별도 카테고리 엔드포인트, JS 번들, Next.js `__NEXT_DATA__`까지 확인했으나 카테고리 이름이 클라이언트에 전달되지 않는 것으로 확인됐습니다. 라방바 서버 내부에서만 처리되는 정보로, 외부 API 설계상 접근 불가능한 제약입니다.
+→ 확인된 cid는 매핑 테이블에 직접 등록하고, 미등록 cid는 `기타(cid:숫자)` 형태로 fallback해 정보 손실 없이 처리합니다.
+
+**로그인 상태가 새로고침 시 초기화되는 문제**
+httpOnly 세션 쿠키는 브라우저 JS에서 직접 읽을 수 없어 `localStorage` 등으로 로그인 상태를 유지할 수 없습니다.
+→ 페이지 로드 시 `/api/me` 엔드포인트를 호출해 서버가 세션 유효성을 확인하고 로그인 상태를 복원하는 방식으로 해결했습니다.

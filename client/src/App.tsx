@@ -1,92 +1,97 @@
-import { useState, useEffect, useRef } from 'react'
-import BroadcastTable from './BroadcastTable'
-import type { Broadcast } from './types'
+import { useState, useEffect, useRef } from "react";
+import BroadcastTable from "./BroadcastTable";
+import type { Broadcast } from "./types";
 
-type TabType = 'live' | 'homeshopping'
+type TabType = "live" | "homeshopping";
 
-const API = 'http://localhost:4000'
+const API = "http://localhost:4000";
 
 export default function App() {
   const [tab, setTab] = useState<TabType>(() => {
-    const param = new URLSearchParams(window.location.search).get('tab')
-    return param === 'hs' ? 'homeshopping' : 'live'
-  })
-  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
-  const [loginError, setLoginError] = useState<string>('')
-  const [loginLoading, setLoginLoading] = useState<boolean>(false)
-  const [fetchError, setFetchError] = useState<string>('')
-  const emailRef = useRef<HTMLInputElement>(null)
-  const passwordRef = useRef<HTMLInputElement>(null)
+    const param = new URLSearchParams(window.location.search).get("tab");
+    return param === "hs" ? "homeshopping" : "live";
+  });
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [loginError, setLoginError] = useState<string>("");
+  const [loginLoading, setLoginLoading] = useState<boolean>(false);
+  const [fetchError, setFetchError] = useState<string>("");
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   // 페이지 로드 시 최초 1회 실행: 서버 세션이 살아있으면 로그인 상태 복원
   useEffect(() => {
-    fetch(`${API}/api/me`, { credentials: 'include' })
+    fetch(`${API}/api/me`, { credentials: "include" })
       .then((res) => res.json())
       .then((data: { loggedIn: boolean }) => {
-        if (data.loggedIn) setIsLoggedIn(true)
+        if (data.loggedIn) setIsLoggedIn(true);
       })
-      .catch(() => {/* 서버 연결 실패 시 로그아웃 상태 유지 */})
-  }, [])
+      .catch(() => {
+        /* 서버 연결 실패 시 로그아웃 상태 유지 */
+      });
+  }, []);
 
   const fetchBroadcasts = () => {
-    const apiType = tab === 'live' ? 'lb' : 'hs'
-    setLoading(true)
-    setFetchError('')
-    fetch(`${API}/api/broadcasts?type=${apiType}`, { credentials: 'include' })
+    const apiType = tab === "live" ? "lb" : "hs";
+    setLoading(true);
+    setFetchError("");
+    fetch(`${API}/api/broadcasts?type=${apiType}`, { credentials: "include" })
       .then((res) => res.json())
       .then((data: Broadcast[]) => setBroadcasts(data))
-      .catch(() => setFetchError('데이터를 불러오지 못했습니다'))
-      .finally(() => setLoading(false))
-  }
+      .catch(() => setFetchError("데이터를 불러오지 못했습니다"))
+      .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    fetchBroadcasts()
-  }, [tab])
+    fetchBroadcasts();
+  }, [tab]);
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const email = emailRef.current?.value ?? ''
-    const password = passwordRef.current?.value ?? ''
-    if (!email || !password) return
+    e.preventDefault();
+    const email = emailRef.current?.value ?? "";
+    const password = passwordRef.current?.value ?? "";
+    if (!email || !password) return;
 
-    setLoginError('')
-    setLoginLoading(true)
+    setLoginError("");
+    setLoginLoading(true);
     try {
       const res = await fetch(`${API}/api/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
-      })
+      });
       if (res.ok) {
         // email/password 값은 절대 로그로 남기지 않음
-        if (emailRef.current) emailRef.current.value = ''
-        if (passwordRef.current) passwordRef.current.value = ''
-        setIsLoggedIn(true)
-        fetchBroadcasts()
+        if (emailRef.current) emailRef.current.value = "";
+        if (passwordRef.current) passwordRef.current.value = "";
+        setIsLoggedIn(true);
+        fetchBroadcasts();
       } else {
-        setLoginError('로그인에 실패했습니다')
+        setLoginError("로그인에 실패했습니다");
       }
     } catch {
-      setLoginError('로그인에 실패했습니다')
+      setLoginError("로그인에 실패했습니다");
     } finally {
-      setLoginLoading(false)
+      setLoginLoading(false);
     }
-  }
+  };
 
   const handleLogout = async () => {
-    await fetch(`${API}/api/logout`, { method: 'POST', credentials: 'include' })
-    setIsLoggedIn(false)
-    fetchBroadcasts()
-  }
+    await fetch(`${API}/api/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    setIsLoggedIn(false);
+    fetchBroadcasts();
+  };
 
   const switchTab = (newTab: TabType) => {
-    const param = newTab === 'homeshopping' ? 'hs' : 'lb'
-    window.history.replaceState(null, '', `?tab=${param}`)
-    setTab(newTab)
-  }
+    const param = newTab === "homeshopping" ? "hs" : "lb";
+    window.history.replaceState(null, "", `?tab=${param}`);
+    setTab(newTab);
+  };
 
   return (
     <div className="page">
@@ -117,7 +122,7 @@ export default function App() {
               autoComplete="current-password"
             />
             <button type="submit" className="login-btn" disabled={loginLoading}>
-              {loginLoading ? '로그인 중…' : '로그인'}
+              {loginLoading ? "로그인 중…" : "로그인"}
             </button>
             {loginError && <span className="login-error">{loginError}</span>}
           </form>
@@ -126,14 +131,14 @@ export default function App() {
 
       <div className="toggle">
         <button
-          className={tab === 'live' ? 'active' : ''}
-          onClick={() => switchTab('live')}
+          className={tab === "live" ? "active" : ""}
+          onClick={() => switchTab("live")}
         >
           라방
         </button>
         <button
-          className={tab === 'homeshopping' ? 'active' : ''}
-          onClick={() => switchTab('homeshopping')}
+          className={tab === "homeshopping" ? "active" : ""}
+          onClick={() => switchTab("homeshopping")}
         >
           홈쇼핑
         </button>
@@ -149,5 +154,5 @@ export default function App() {
         )}
       </div>
     </div>
-  )
+  );
 }

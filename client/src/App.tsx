@@ -7,7 +7,10 @@ type TabType = 'live' | 'homeshopping'
 const API = 'http://localhost:4000'
 
 export default function App() {
-  const [tab, setTab] = useState<TabType>('live')
+  const [tab, setTab] = useState<TabType>(() => {
+    const param = new URLSearchParams(window.location.search).get('tab')
+    return param === 'hs' ? 'homeshopping' : 'live'
+  })
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false)
@@ -79,6 +82,12 @@ export default function App() {
     fetchBroadcasts()
   }
 
+  const switchTab = (newTab: TabType) => {
+    const param = newTab === 'homeshopping' ? 'hs' : 'lb'
+    window.history.replaceState(null, '', `?tab=${param}`)
+    setTab(newTab)
+  }
+
   return (
     <div className="page">
       <div className="page-header">
@@ -118,13 +127,13 @@ export default function App() {
       <div className="toggle">
         <button
           className={tab === 'live' ? 'active' : ''}
-          onClick={() => setTab('live')}
+          onClick={() => switchTab('live')}
         >
           라방
         </button>
         <button
           className={tab === 'homeshopping' ? 'active' : ''}
-          onClick={() => setTab('homeshopping')}
+          onClick={() => switchTab('homeshopping')}
         >
           홈쇼핑
         </button>

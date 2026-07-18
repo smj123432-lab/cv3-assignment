@@ -1,61 +1,132 @@
-import { formatDateTime } from './formatDateTime'
-import { formatRevenue } from './formatRevenue'
-import type { Broadcast } from './types'
+import { formatDateTime } from "./formatDateTime";
+import { formatRevenue } from "./formatRevenue";
+import type { Broadcast } from "./types";
 
 // 잠긴 값(null)은 자물쇠 표시, 숫자는 콤마 포맷, 문자열은 그대로 출력
 function LockedOrValue({ value }: { value: number | string | null }) {
   if (value === null || value === undefined) {
-    return <span className="locked">🔒</span>
+    return <span className="locked">🔒</span>;
   }
-  if (typeof value === 'number') {
-    return <span>{value.toLocaleString()}</span>
+  if (typeof value === "number") {
+    return <span>{value.toLocaleString()}</span>;
   }
-  return <span>{value}</span>
+  return <span>{value}</span>;
 }
+
+interface Column {
+  key: string
+  label: string | ((items: Broadcast[]) => string)
+  width: number
+  tdClassName?: string
+  sortable?: boolean
+  render: (item: Broadcast) => React.ReactNode
+}
+
+const COLUMNS: Column[] = [
+  {
+    key: "rank",
+    label: "순위",
+    width: 52,
+    tdClassName: "rank",
+    render: (item) => item.rank,
+  },
+  {
+    key: "title",
+    label: "방송정보",
+    width: 300,
+    tdClassName: "title-cell",
+    render: (item) => (
+      <>
+        <div className="title">{item.title}</div>
+        <div className="channel">{item.channel}</div>
+      </>
+    ),
+  },
+  {
+    key: "category",
+    label: "분류",
+    width: 106,
+    render: (item) => item.category,
+  },
+  {
+    key: "broadcastTime",
+    label: "방송시간",
+    width: 140,
+    sortable: true,
+    render: (item) => formatDateTime(item.broadcastTime),
+  },
+  {
+    key: "metricValue",
+    label: (items) => items[0]?.metricLabel ?? "조회수",
+    width: 88,
+    render: (item) => <LockedOrValue value={item.metricValue} />,
+  },
+  {
+    key: "sales",
+    label: "판매량",
+    width: 88,
+    render: (item) => <LockedOrValue value={item.sales} />,
+  },
+  {
+    key: "revenue",
+    label: "매출액",
+    width: 106,
+    render: (item) => (
+      <LockedOrValue
+        value={item.revenue === null ? null : formatRevenue(item.revenue)}
+      />
+    ),
+  },
+  {
+    key: "productCount",
+    label: "상품수",
+    width: 68,
+    render: (item) => item.productCount,
+  },
+];
 
 interface Props {
-  items: Broadcast[]
+  items: Broadcast[];
+  sortOrder: "asc" | "desc";
+  setSortOrder: (order: "asc" | "desc") => void;
 }
 
-export default function BroadcastTable({ items }: Props) {
+export default function BroadcastTable({
+  items,
+  sortOrder,
+  setSortOrder,
+}: Props) {
   return (
     <table className="broadcast-table">
       <thead>
         <tr>
-          <th>순위</th>
-          <th>방송정보</th>
-          <th>분류</th>
-          <th>방송시간</th>
-          {/* 라방/홈쇼핑에 따라 조회수 or 시청률로 라벨이 바뀜 */}
-          <th>{items[0]?.metricLabel ?? '조회수'}</th>
-          <th>판매량</th>
-          <th>매출액</th>
-          <th>상품수</th>
+          {COLUMNS.map((col) => (
+            <th
+              key={col.key}
+              style={{ width: col.width }}
+              onClick={
+                col.sortable
+                  ? () => setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                  : undefined
+              }
+            >
+              {typeof col.label === "function" ? col.label(items) : col.label}
+              {col.sortable && (sortOrder === "asc" ? "1" : "2")}
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
         {items.map((item) => (
           <tr key={item.rank}>
-            <td className="rank">{item.rank}</td>
-            <td className="title-cell">
-              <div className="title">{item.title}</div>
-              <div className="channel">{item.channel}</div>
-            </td>
-            <td>{item.category}</td>
-            <td>{formatDateTime(item.broadcastTime)}</td>
-            <td>
-              <LockedOrValue value={item.metricValue} />
-            </td>
-            <td>
-              <LockedOrValue value={item.sales} />
-            </td>
-            <td>
-              <LockedOrValue value={item.revenue === null ? null : formatRevenue(item.revenue)} />
-            </td>
-            <td>{item.productCount}</td>
+            {COLUMNS.map((col) => (
+              <td key={col.key} className={col.tdClassName}>
+                {col.render(item)}
+              </td>
+            ))}
           </tr>
         ))}
       </tbody>
     </table>
-  )
+  );
 }

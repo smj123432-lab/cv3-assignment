@@ -125,15 +125,6 @@ h1 {
   table-layout: fixed;
 }
 
-/* 탭/로그인 전환 시 컬럼 너비 고정 */
-.broadcast-table th:nth-child(1) { width: 52px; }   /* 순위 */
-.broadcast-table th:nth-child(2) { width: 300px; }  /* 방송정보 */
-.broadcast-table th:nth-child(3) { width: 106px; }  /* 분류 */
-.broadcast-table th:nth-child(4) { width: 140px; }  /* 방송시간 */
-.broadcast-table th:nth-child(5) { width: 88px; }   /* 조회수/시청률 */
-.broadcast-table th:nth-child(6) { width: 88px; }   /* 판매량 */
-.broadcast-table th:nth-child(7) { width: 106px; }  /* 매출액 */
-.broadcast-table th:nth-child(8) { width: 68px; }   /* 상품수 */
 
 .broadcast-table th,
 .broadcast-table td {

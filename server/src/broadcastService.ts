@@ -43,7 +43,7 @@ const CID_NAMES: Record<number, string> = {
 }
 
 // lb datetime 형식: "YYMMDDHHMM" (10자) → ISO 문자열
-function parseLbDatetime(s: string): string {
+export function parseLbDatetime(s: string): string {
   const yy = s.slice(0, 2)
   const mm = s.slice(2, 4)
   const dd = s.slice(4, 6)
@@ -53,7 +53,7 @@ function parseLbDatetime(s: string): string {
 }
 
 // hs datetime 형식: "YYYYMMDDHHMM" (12자) → ISO 문자열
-function parseHsDatetime(s: string): string {
+export function parseHsDatetime(s: string): string {
   const yyyy = s.slice(0, 4)
   const mm = s.slice(4, 6)
   const dd = s.slice(6, 8)
